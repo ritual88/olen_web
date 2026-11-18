@@ -1,0 +1,48 @@
+---
+import { site, footer, year } from '../data/site';
+
+const bottom = footer.bottomLeft.replace('{year}', String(year));
+---
+
+<footer class="site-footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div>
+        <img
+          class="footer__logo"
+          src="/img/logo-wordmark-dark.webp"
+          alt={site.wordmark}
+          width="369"
+          height="140"
+        />
+        <p class="footer__role">{site.role}</p>
+      </div>
+
+      <div>
+        <div class="footer__title">{footer.contactsTitle}</div>
+        <div class="footer__links">
+          <a href={site.telegram} target="_blank" rel="noopener noreferrer">
+            Telegram {site.telegramHandle}
+          </a>
+          <a href={site.phoneHref}>{site.phone}</a>
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </div>
+      </div>
+
+      <div>
+        <div class="footer__title">{footer.pagesTitle}</div>
+        <div class="footer__links">
+          <a href="/services">Услуги</a>
+          <a href="/about">Обо мне</a>
+          <a href="/contact">Контакт</a>
+          <a href="/privacy">Политика конфиденциальности</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="footer__bottom">
+      <span>{bottom}</span>
+      <span>{footer.bottomRight}</span>
+    </div>
+  </div>
+</footer>

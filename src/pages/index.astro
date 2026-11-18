@@ -1,0 +1,128 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, home, services, steps, faq } from '../data/site';
+
+const title = `${site.name} — сайты: дизайн и разработка`;
+const description = home.hero.lead;
+---
+
+<Base title={title} description={description}>
+  <section class="container hero">
+    <div class="eyebrow">{home.hero.eyebrow}</div>
+    <h1 class="hero__title">{home.hero.title1}<br />{home.hero.title2}</h1>
+    <p class="hero__lead">{home.hero.lead}</p>
+    <div class="hero__actions">
+      <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">
+        {home.hero.primary}
+      </a>
+      <a class="btn" href="#process">{home.hero.secondary}</a>
+    </div>
+
+    <figure class="hero__figure hero__figure--logo">
+      <div class="hero__logo">
+        <img src="/img/logo-lockup-dark.webp" alt={site.name} width="483" height="600" loading="eager" />
+      </div>
+    </figure>
+  </section>
+
+  <section class="container section reveal" id="services">
+    <div class="section__head">
+      <span class="section__idx">{home.services.idx}</span>
+      <h2 class="section__label">{home.services.label}</h2>
+    </div>
+
+    <div class="cards">
+      {
+        services.map((service) => (
+          <article class="card">
+            <div class="card__num">{service.num}</div>
+            <h3 class="card__title">{service.title}</h3>
+            <p class="card__text">{service.short}</p>
+            <a class="card__link" href={`/services#${service.id}`}>
+              {home.services.more}
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container section reveal" id="process">
+    <div class="section__head">
+      <span class="section__idx">{home.process.idx}</span>
+      <h2 class="section__label">{home.process.label}</h2>
+    </div>
+
+    <div class="steps">
+      {
+        steps.map((step) => (
+          <div class="step">
+            <div class="step__num">{step.num}</div>
+            <div>
+              <h3 class="step__title">{step.title}</h3>
+              <p class="step__text">{step.text}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+
+    <p class="note">{home.process.note}</p>
+  </section>
+
+  <section class="container section reveal" id="this-site">
+    <div class="section__head">
+      <span class="section__idx">{home.thisSite.idx}</span>
+      <h2 class="section__label">{home.thisSite.label}</h2>
+    </div>
+
+    <div class="about-site">
+      <h3 class="about-site__title">{home.thisSite.title}</h3>
+      <div>
+        <p class="about-site__text">{home.thisSite.text}</p>
+        <a class="card__link" href="/about#site">{home.thisSite.link}</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section reveal" id="faq">
+    <div class="section__head">
+      <span class="section__idx">{home.faq.idx}</span>
+      <h2 class="section__label">{home.faq.label}</h2>
+    </div>
+
+    <div class="faq">
+      {
+        faq.map((item, index) => (
+          <details class="faq__item">
+            <summary class="faq__q">
+              <span class="faq__num">{String(index + 1).padStart(2, '0')}</span>
+              <span>{item.q}</span>
+            </summary>
+            <p class="faq__a">{item.a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="container section reveal" id="contact">
+    <div class="section__head">
+      <span class="section__idx">{home.contact.idx}</span>
+      <h2 class="section__label">{home.contact.label}</h2>
+    </div>
+
+    <div class="cta-block">
+      <div>
+        <h3 class="cta-block__title">{home.contact.title}</h3>
+        <p class="cta-block__text">{home.contact.text}</p>
+      </div>
+      <div class="cta-block__actions">
+        <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">
+          {home.contact.primary}
+        </a>
+        <a class="btn" href="/contact">{home.contact.secondary}</a>
+      </div>
+    </div>
+  </section>
+</Base>

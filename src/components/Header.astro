@@ -1,0 +1,40 @@
+---
+import { site, nav, ui } from '../data/site';
+
+const path = Astro.url.pathname;
+---
+
+<header class="site-header">
+  <div class="container header__inner">
+    <a class="brand" href="/" aria-label={site.wordmark}>
+      <img src="/img/logo-wordmark-dark.webp" alt={site.wordmark} width="329" height="140" />
+    </a>
+
+    <nav class="nav" aria-label="Основная навигация">
+      {
+        nav.map((item) => (
+          <a
+            class="nav__cell"
+            href={item.href}
+            aria-current={path === item.href ? 'page' : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+      <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">
+        {ui.ctaProject}
+      </a>
+    </nav>
+
+    <details class="menu">
+      <summary class="menu__toggle">{ui.menu}</summary>
+      <div class="menu__panel">
+        {nav.map((item) => <a href={item.href}>{item.label}</a>)}
+        <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">
+          {ui.ctaTelegramShort}
+        </a>
+      </div>
+    </details>
+  </div>
+</header>

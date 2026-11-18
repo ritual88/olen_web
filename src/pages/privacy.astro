@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, privacyPage } from '../data/site';
+---
+
+<Base title={`${privacyPage.title} — ${site.name}`} description={privacyPage.lead} noindex>
+  <section class="container page">
+    <div class="eyebrow">{privacyPage.eyebrow}</div>
+    <h1 class="page__title">{privacyPage.title}</h1>
+    <p class="page__lead">{privacyPage.lead}</p>
+
+    <div class="prose" style="margin-top: var(--space-7)">
+      {
+        privacyPage.blocks.map((block) => (
+          <p>
+            <strong>{block.title}</strong> {block.text}
+          </p>
+        ))
+      }
+    </div>
+  </section>
+</Base>

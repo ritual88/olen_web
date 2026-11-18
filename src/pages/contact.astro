@@ -1,0 +1,108 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, contactPage } from '../data/site';
+
+const f = contactPage.form;
+---
+
+<Base title={`${contactPage.title} — ${site.name}`} description={contactPage.lead}>
+  <section class="container page">
+    <div class="eyebrow">{contactPage.eyebrow}</div>
+    <h1 class="page__title">{contactPage.title}</h1>
+    <p class="page__lead">{contactPage.lead}</p>
+
+    <div class="contact-grid">
+      <form
+        class="form"
+        data-contact-form
+        data-msg-sending={f.sending}
+        data-msg-success={f.success}
+        data-msg-error={f.error}
+        data-telegram={site.telegram}
+        novalidate
+      >
+        <div class="field">
+          <label class="field__label" for="name">{f.name}</label>
+          <input
+            class="field__input"
+            id="name"
+            name="name"
+            type="text"
+            autocomplete="name"
+            aria-describedby="name-error"
+            required
+          />
+          <span class="field__error" id="name-error" data-error-for="name" hidden></span>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="contact">{f.contact}</label>
+          <input
+            class="field__input"
+            id="contact"
+            name="contact"
+            type="text"
+            autocomplete="email"
+            aria-describedby="contact-error"
+            required
+          />
+          <span class="field__error" id="contact-error" data-error-for="contact" hidden></span>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="type">{f.type}</label>
+          <select class="field__select" id="type" name="type">
+            {f.types.map((option) => <option value={option.value}>{option.label}</option>)}
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="message">{f.message}</label>
+          <textarea
+            class="field__textarea"
+            id="message"
+            name="message"
+            placeholder={f.messagePlaceholder}
+          ></textarea>
+        </div>
+
+        <label class="checkbox">
+          <input type="checkbox" name="consent" required />
+          <span>
+            {f.consent} <a href="/privacy">{f.consentLink}</a>
+          </span>
+        </label>
+
+        <div class="hero__actions">
+          <button class="btn btn--primary" type="submit">{f.submit}</button>
+        </div>
+
+        <p class="form__status" data-form-status role="status" aria-live="polite" hidden></p>
+        <p class="field__hint">{f.hint}</p>
+
+        <div class="hp" aria-hidden="true">
+          <label for="company">Компания</label>
+          <input id="company" name="company" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+      </form>
+
+      <aside class="aside">
+        <div class="aside__title">{contactPage.aside.direct}</div>
+        <div class="aside__list">
+          <a href={site.telegram} target="_blank" rel="noopener noreferrer">
+            Telegram {site.telegramHandle}
+          </a>
+          <a href={site.phoneHref}>{site.phone}</a>
+          <a href={`mailto:${site.email}`}>{site.email}</a>
+        </div>
+
+        <div class="aside__title" style="margin-top: var(--space-6)">{contactPage.aside.next}</div>
+        <ol class="note-list">
+          {contactPage.aside.steps.map((step) => <li>{step}</li>)}
+        </ol>
+      </aside>
+    </div>
+  </section>
+</Base>
+
+<script is:inline src="/js/form.js" defer></script>

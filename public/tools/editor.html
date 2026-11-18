@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Редактор текста — Ольга Кисурина</title>
+<style>
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('../fonts/plex-mono-400-latin.woff2') format('woff2'), url('../fonts/plex-mono-400-cyrillic.woff2') format('woff2'); }
+  @font-face { font-family: 'IBM Plex Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('../fonts/plex-mono-600-latin.woff2') format('woff2'), url('../fonts/plex-mono-600-cyrillic.woff2') format('woff2'); }
+</style>
+<style>
+  :root{
+    --bg:#0f1013; --panel:#14161c; --line:#262a3a; --text:#e9eaf0; --muted:#9aa0b4;
+    --signal:#6870f2; --signal-hi:#9aa2ff; --ok:#7fe0a8; --warn:#ffcf6b;
+    --font:"IBM Plex Mono",ui-monospace,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font:400 13px/1.5 var(--font)}
+  header.bar{position:sticky;top:0;z-index:10;background:rgba(15,16,19,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .bar__in{max-width:1180px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+  .bar h1{font-size:13px;font-weight:600;margin:0;letter-spacing:.02em}
+  .bar .spacer{flex:1}
+  .bar .count{color:var(--muted);font-size:11px}
+  button{font:500 11px/1 var(--font);letter-spacing:.08em;text-transform:uppercase;border:1px solid var(--line);background:transparent;color:var(--text);padding:10px 14px;cursor:pointer}
+  button:hover{border-color:var(--signal-hi);color:var(--signal-hi)}
+  button.primary{background:var(--signal);border-color:var(--signal);color:#0b0c10}
+  button.primary:hover{background:var(--signal-hi);border-color:var(--signal-hi);color:#0b0c10}
+  main{max-width:1180px;margin:0 auto;padding:24px 24px 120px}
+  .search{width:100%;padding:10px 12px;background:var(--panel);border:1px solid var(--line);color:var(--text);font:400 12px var(--font)}
+  section.group{margin-top:32px;border-top:1px solid var(--line);padding-top:16px}
+  section.group > h2{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:0 0 12px}
+  .field{margin-top:12px;display:grid;gap:6px}
+  .field label{color:var(--muted);font-size:11px;letter-spacing:.04em}
+  .field input,.field textarea{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--text);font:400 13px/1.5 var(--font);padding:9px 11px;resize:vertical}
+  .field input:focus,.field textarea:focus{outline:2px solid var(--signal);outline-offset:1px;border-color:var(--signal)}
+  .field.changed input,.field.changed textarea{border-color:var(--signal)}
+  .field.changed label::after{content:" · изменено";color:var(--signal-hi)}
+  .card{border-left:1px solid var(--line);padding-left:14px;margin-top:12px}
+  .card > .card-title{color:var(--signal-hi);font-size:11px;letter-spacing:.08em;text-transform:uppercase}
+  .hint{margin:24px 0 0;color:var(--muted);font-size:12px;max-width:70ch}
+  .hint code{color:var(--signal-hi)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--signal);color:#0b0c10;padding:10px 18px;font-size:12px;opacity:0;pointer-events:none;transition:opacity .2s}
+  .toast.show{opacity:1}
+  @media (max-width:700px){.bar__in{padding:12px 16px}main{padding:16px 16px 120px}}
+</style>
+</head>
+<body>
+<header class="bar">
+  <div class="bar__in">
+    <h1>Редактор текста</h1>
+    <span class="count" id="count">изменений нет</span>
+    <div class="spacer"></div>
+    <button id="download" class="primary">Скачать content.json</button>
+    <button id="copy">Скопировать</button>
+    <button id="reload">Сбросить</button>
+  </div>
+</header>
+
+<main>
+  <input class="search" id="search" type="search" placeholder="Поиск по тексту или названию поля…" />
+  <div id="form"></div>
+  <p class="hint">
+    Правишь текст → «Скачать content.json» → присылаешь файл. Я подставляю его в проект и собираю сайт заново.
+    Пока файл не заменён, сайт остаётся прежним: этот редактор ничего не публикует сам.
+    Открывается и по ссылке на сайте, и двойным щелчком по файлу — во втором случае текст берётся из копии, вшитой при сборке.
+  </p>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<!--CONTENT-START-->
+<script id="initial-content" type="application/json">{"site":{"name":"Ольга Кисурина","wordmark":"ОЛЬГА КИСУРИНА","role":"Веб-дизайн · разработка","telegram":"https://t.me/olenolen","telegramHandle":"@olenolen","phone":"+7 952 953-19-65","phoneHref":"tel:+79529531965","email":"super.oolen18@yandex.ru","domain":"example.com"},"nav":[{"href":"/services","label":"Услуги"},{"href":"/about","label":"Обо мне"},{"href":"/contact","label":"Контакт"}],"ui":{"menu":"Меню","ctaProject":"Обсудить проект","ctaTelegram":"Написать в Telegram","ctaTelegramShort":"Telegram","skipLink":"К содержанию"},"home":{"hero":{"eyebrow":"Веб-дизайн · разработка","title1":"Сайт под ключ:","title2":"от структуры до запуска","lead":"Один человек вместо студии. Придумываю структуру, рисую дизайн, собираю и запускаю.","primary":"Обсудить проект","secondary":"Как я работаю"},"services":{"idx":"01","label":"Услуги — 3 позиции","more":"Подробнее"},"process":{"idx":"02","label":"Как я работаю — 4 шага","note":"Что нужно от вас: рассказ о бизнесе, материалы — логотип, фото, тексты. Отвечаете на вопросы по ходу работы."},"thisSite":{"idx":"03","label":"Этот сайт","title":"Этот сайт — мой пример работы","text":"Я сделала его сама: структуру, дизайн, код. Он показывает, как я работаю, лучше любого описания.","link":"Как он устроен"},"faq":{"idx":"04","label":"Вопросы"},"contact":{"idx":"05","label":"Контакт","title":"Обсудим проект","text":"Напишите в Telegram — это быстрее всего. Или оставьте заявку, отвечу лично.","primary":"Написать в Telegram","secondary":"Оставить заявку"}},"servicesPage":{"eyebrow":"Услуги","title":"Услуги и состав работ","lead":"Три формата: сайт целиком, только макет, поддержка после запуска. Ниже — что именно входит, чтобы не было сюрпризов.","price":{"idx":"04","label":"Как считается цена","p1":"Цены не публикую: одинаковых проектов не бывает. После брифа называю вилку и фиксирую её в смете — до начала работы.","p2":"На стоимость влияет:","bullets":["количество страниц;","уникальный дизайн или сборка по готовому макету;","интеграции: форма заявки, оплата, CRM;","срочность."],"p3":"Если бюджета пока нет — это нормально. Напишите, расскажу, что можно сделать в рамках вашей суммы."}},"aboutPage":{"eyebrow":"Обо мне","title":"Ольга Кисурина","paragraphs":["Делаю сайты: собираю структуру, рисую дизайн, верстаю и запускаю.","Работаю кодом, а не на конструкторе: сайт быстрее грузится и не зависит от обновлений чужой платформы.","Люблю, когда на сайте понятно, что делать дальше: куда нажать, что прочитать, что написать."],"tools":"Инструменты: Figma, Astro, CSS, Vercel.","siteBlock":{"idx":"01","label":"Как сделан этот сайт","paragraphs":["Собран на Astro: страницы отдаются готовым HTML, поэтому грузятся быстро и без задержек на JavaScript.","Стили — обычный CSS с переменными, без тяжёлых фреймворков. Анимации уважают настройку «уменьшить движение»."],"formNote":"Формы уходят в Telegram, данные не хранятся на сайте.","hostingNote":"Хостинг — Vercel."}},"contactPage":{"eyebrow":"Контакт","title":"Обсудим проект","lead":"Опишите, что нужно: сайт с нуля, макет или доработка. Отвечу и задам пару вопросов.","form":{"name":"Как к вам обращаться","contact":"Telegram или почта","type":"Что нужно","types":[{"value":"full","label":"Сайт под ключ"},{"value":"design","label":"Только дизайн"},{"value":"support","label":"Поддержка"},{"value":"other","label":"Пока не знаю"}],"message":"О проекте","messagePlaceholder":"Пара предложений о бизнесе и задаче","consent":"Согласен на обработку данных.","consentLink":"Политика конфиденциальности","submit":"Отправить","hint":"Отвечаю лично. Рассылок не будет.","sending":"Отправляю…","success":"Заявка ушла. Отвечу в Telegram или на почту.","error":"Не отправилось. Напишите в Telegram — откроется чат."},"aside":{"direct":"Напрямую","next":"Что будет дальше","steps":["Отвечу и уточню детали.","Назову вилку и срок.","Если подходит — бриф и старт."]}},"privacyPage":{"eyebrow":"Документы","title":"Политика конфиденциальности","lead":"Черновик. Текст типовой и требует проверки на соответствие применимому закону перед публикацией.","blocks":[{"title":"Какие данные собираются.","text":"Имя, контакт (Telegram или почта) и текст заявки, который вы отправляете через форму или пишете напрямую."},{"title":"Зачем.","text":"Только чтобы ответить на обращение и обсудить проект."},{"title":"Где хранятся.","text":"В переписке Telegram и в почтовом ящике super.oolen18@yandex.ru. На сайте базы данных нет, данные не сохраняются."},{"title":"Сколько хранятся.","text":"Пока идёт переписка. Дальше — по договорённости."},{"title":"Как удалить.","text":"Напишите на почту — удалю переписку и контакты."},{"title":"Cookies и статистика.","text":"Сайт использует счётчик посещаемости. Он собирает обезличенные данные о визитах. Запись сессий отключена."},{"title":"Передача третьим лицам.","text":"Данные не передаются никому, кроме сервисов, через которые идёт переписка."}]},"notFound":{"eyebrow":"404","title":"Такой страницы нет","lead":"Возможно, ссылка устарела. Вот куда можно пойти дальше.","links":[{"href":"/","label":"На главную"},{"href":"/services","label":"Услуги"}]},"footer":{"contactsTitle":"Связаться","pagesTitle":"Страницы","bottomLeft":"© {year} Ольга Кисурина","bottomRight":"Сделано вручную: дизайн и код"},"services":[{"id":"full","num":"01","title":"Сайт под ключ","short":"Структура, дизайн, вёрстка, запуск. От идеи до адреса в интернете.","includes":["Структура и прототип","Дизайн всех страниц","Адаптив под телефон","Вёрстка и подключение домена","Передача доступов"],"need":"Материалы и обратная связь. Текстов нет — соберу из разговора.","cta":"Обсудить проект"},{"id":"design","num":"02","title":"Веб-дизайн","short":"Только макет: прототип и дизайн страниц. Если собираете сами.","includes":["Карта страниц","Прототип","Дизайн страниц","Передача макета в Figma","Комментарии к вёрстке"],"need":"Контент и правки.","cta":"Обсудить макет"},{"id":"support","num":"03","title":"Поддержка","short":"Правки, обновления и мелкие доработки после запуска.","includes":["Правки текста и блоков","Обновления","Мелкие доработки","Помощь с хостингом и доменом"],"need":"Доступ к сайту или макету.","cta":"Написать"}],"steps":[{"num":"01","title":"Бриф","text":"Разговор: что за бизнес, что должно происходить на сайте, что есть сейчас. На выходе — короткое резюме и вилка по цене."},{"num":"02","title":"Структура","text":"Карта страниц и прототип. Согласуем, что где стоит. Здесь правки дешёвые — меняем на бумаге, а не в коде."},{"num":"03","title":"Дизайн","text":"Макет всех страниц. Смотрите на телефоне и на компьютере. Правки на этом этапе входят в работу."},{"num":"04","title":"Сборка и запуск","text":"Вёрстка, домен, проверка на реальных телефонах. Передаю доступы."}],"faq":[{"q":"Сколько стоит?","a":"Зависит от объёма: сколько страниц, нужен ли уникальный дизайн, есть ли интеграции. Вилку называю после брифа и до начала работы."},{"q":"Сколько ждать?","a":"Срок зависит от объёма и от того, как быстро приходят материалы. Фиксирую его до старта, а не «примерно»."},{"q":"Что нужно от меня?","a":"Рассказ о бизнесе и материалы. Текстов нет — соберу из разговора и согласую."},{"q":"Много ли правок?","a":"Правки входят в работу. На старте договариваемся, сколько кругов на каждом этапе — чтобы у обеих сторон были одинаковые ожидания."},{"q":"Что после запуска?","a":"Передаю доступы. Дальше поддержка по запросу или разово."},{"q":"Как оплата?","a":"Поэтапно: половина до начала работы, половина после сдачи. Способ обсудим в переписке."}]}</script>
+<!--CONTENT-END-->
+
+<script>
+const LABELS = {
+  'site': 'Контакты и бренд',
+  'site.name': 'Имя',
+  'site.wordmark': 'Логотип (текстом)',
+  'site.role': 'Подпись под именем',
+  'site.telegram': 'Ссылка на Telegram',
+  'site.telegramHandle': 'Ник в Telegram',
+  'site.phone': 'Телефон',
+  'site.phoneHref': 'Телефон для звонка (tel:)',
+  'site.email': 'Почта',
+  'nav': 'Меню сайта',
+  'ui': 'Кнопки и подписи',
+  'ui.menu': 'Кнопка «Меню»',
+  'ui.ctaProject': 'Кнопка в шапке',
+  'ui.ctaTelegram': 'Кнопка «Написать в Telegram»',
+  'ui.ctaTelegramShort': 'Короткая кнопка Telegram',
+  'home': 'Главная',
+  'home.hero': 'Первый экран',
+  'home.hero.eyebrow': 'Надпись над заголовком',
+  'home.hero.title1': 'Заголовок, строка 1',
+  'home.hero.title2': 'Заголовок, строка 2',
+  'home.hero.lead': 'Подзаголовок',
+  'home.hero.primary': 'Кнопка 1',
+  'home.hero.secondary': 'Кнопка 2',
+  'home.services': 'Блок услуг',
+  'home.services.label': 'Заголовок блока',
+  'home.services.more': 'Ссылка «Подробнее»',
+  'home.process': 'Блок процесса',
+  'home.process.label': 'Заголовок блока',
+  'home.process.note': 'Примечание под шагами',
+  'home.thisSite': 'Блок «этот сайт»',
+  'home.thisSite.title': 'Заголовок',
+  'home.thisSite.text': 'Текст',
+  'home.thisSite.link': 'Ссылка',
+  'home.contact': 'Блок контакта',
+  'home.contact.title': 'Заголовок',
+  'home.contact.text': 'Текст',
+  'home.contact.primary': 'Кнопка 1',
+  'home.contact.secondary': 'Кнопка 2',
+  'servicesPage': 'Страница услуг',
+  'servicesPage.eyebrow': 'Надпись над заголовком',
+  'servicesPage.title': 'Заголовок страницы',
+  'servicesPage.lead': 'Лид',
+  'servicesPage.price': 'Блок цены',
+  'services': 'Карточки услуг',
+  'steps': 'Шаги процесса',
+  'faq': 'Вопросы',
+  'aboutPage': 'Обо мне',
+  'aboutPage.paragraphs': 'Абзацы',
+  'aboutPage.tools': 'Инструменты',
+  'aboutPage.siteBlock': 'Блок «как сделан сайт»',
+  'contactPage': 'Контакты',
+  'contactPage.form': 'Поля формы',
+  'contactPage.aside': 'Боковая колонка',
+  'privacyPage': 'Политика',
+  'privacyPage.blocks': 'Пункты',
+  'notFound': 'Страница 404',
+  'footer': 'Подвал',
+  'nav[0]': 'Пункт меню 1',
+  'nav[1]': 'Пункт меню 2',
+  'nav[2]': 'Пункт меню 3',
+};
+
+let content = null;
+let original = null;
+
+const KEY_LABELS = {
+  href: 'Ссылка',
+  label: 'Название',
+  value: 'Значение',
+  title: 'Заголовок',
+  text: 'Текст',
+  short: 'Короткое описание',
+  includes: 'Что входит',
+  need: 'Что нужно от вас',
+  cta: 'Кнопка',
+  idx: 'Номер секции',
+  num: 'Номер',
+  q: 'Вопрос',
+  a: 'Ответ',
+  type: 'Тип поля',
+  types: 'Варианты выбора',
+  form: 'Поля формы',
+  aside: 'Боковая колонка',
+  blocks: 'Пункты',
+  steps: 'Шаги',
+  paragraphs: 'Абзацы',
+  lead: 'Лид',
+  eyebrow: 'Надпись над заголовком',
+  direct: 'Заголовок «Напрямую»',
+  next: 'Заголовок «Что будет дальше»',
+  submit: 'Кнопка отправки',
+  hint: 'Подсказка под формой',
+  consent: 'Текст согласия',
+  consentLink: 'Ссылка на политику',
+  name: 'Имя',
+  contact: 'Контакт',
+  message: 'Сообщение',
+  messagePlaceholder: 'Подсказка в поле «О проекте»',
+  tools: 'Инструменты',
+  price: 'Цена',
+  p1: 'Абзац 1',
+  p2: 'Абзац 2',
+  p3: 'Абзац 3',
+  bullets: 'Список',
+  formNote: 'Про формы',
+  hostingNote: 'Про хостинг',
+  links: 'Ссылки',
+  contactsTitle: 'Заголовок «Связаться»',
+  pagesTitle: 'Заголовок «Страницы»',
+  bottomLeft: 'Подпись слева внизу',
+  bottomRight: 'Подпись справа внизу',
+  more: 'Ссылка «Подробнее»',
+  note: 'Примечание',
+  siteBlock: 'Блок «как сделан сайт»',
+  domain: 'Домен',
+  skipLink: 'Ссылка «К содержанию»'
+};
+
+const formEl = document.getElementById('form');
+const countEl = document.getElementById('count');
+const toastEl = document.getElementById('toast');
+
+function label(path) {
+  if (LABELS[path]) return LABELS[path];
+  const m = path.match(/^(.*)\[(\d+)\]$/);
+  if (m) return label(m[1]) + ' №' + (Number(m[2]) + 1);
+  const parts = path.split('.');
+  const last = parts[parts.length - 1];
+  return KEY_LABELS[last] || last;
+}
+
+function toast(text) {
+  toastEl.textContent = text;
+  toastEl.classList.add('show');
+  setTimeout(() => toastEl.classList.remove('show'), 1600);
+}
+
+function changedCount() {
+  let n = 0;
+  (function walk(a, b) {
+    if (typeof a === 'string') { if (a !== b) n++; return; }
+    if (Array.isArray(a)) { a.forEach((v, i) => walk(v, b && b[i])); return; }
+    if (a && typeof a === 'object') { for (const k of Object.keys(a)) walk(a[k], b && b[k]); }
+  })(content, original);
+  return n;
+}
+
+function updateCount() {
+  const n = changedCount();
+  countEl.textContent = n === 0 ? 'изменений нет' : 'изменено полей: ' + n;
+}
+
+function makeField(obj, key, path) {
+  const isLong = typeof obj[key] === 'string' && obj[key].length > 70;
+  const wrap = document.createElement('div');
+  wrap.className = 'field';
+  wrap.dataset.search = (label(path) + ' ' + obj[key]).toLowerCase();
+
+  const id = 'f_' + path.replace(/[^\w]/g, '_');
+  const lab = document.createElement('label');
+  lab.setAttribute('for', id);
+  lab.textContent = label(path);
+
+  const input = document.createElement(isLong ? 'textarea' : 'input');
+  input.id = id;
+  if (isLong) input.rows = 3;
+  input.value = obj[key];
+  input.addEventListener('input', () => {
+    obj[key] = input.value;
+    wrap.classList.toggle('changed', input.value !== getOriginal(path));
+    updateCount();
+  });
+
+  wrap.append(lab, input);
+  return wrap;
+}
+
+function getOriginal(path) {
+  const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+  let cur = original;
+  for (const p of parts) { if (cur == null) return undefined; cur = cur[p]; }
+  return cur;
+}
+
+function render(obj, path, host) {
+  for (const key of Object.keys(obj)) {
+    const value = obj[key];
+    const p = path ? path + '.' + key : key;
+
+    if (typeof value === 'string') {
+      host.append(makeField(obj, key, p));
+    } else if (Array.isArray(value)) {
+      const wrap = document.createElement('div');
+      wrap.className = 'field';
+      wrap.dataset.search = label(p).toLowerCase();
+      const title = document.createElement('div');
+      title.className = 'card-title';
+      title.textContent = label(p);
+      wrap.append(title);
+
+      value.forEach((item, i) => {
+        if (typeof item === 'string') {
+          const f = makeField(value, i, p + '[' + i + ']');
+          f.classList.add('card');
+          wrap.append(f);
+        } else {
+          const card = document.createElement('div');
+          card.className = 'card';
+          const t = document.createElement('div');
+          t.className = 'card-title';
+          t.textContent = label(p + '[' + i + ']');
+          const inner = document.createElement('div');
+          render(item, p + '[' + i + ']', inner);
+          card.append(t, inner);
+          wrap.append(card);
+        }
+      });
+      host.append(wrap);
+    } else if (value && typeof value === 'object') {
+      const sec = document.createElement('section');
+      sec.className = 'group';
+      const h = document.createElement('h2');
+      h.textContent = label(p);
+      sec.append(h);
+      render(value, p, sec);
+      host.append(sec);
+    }
+  }
+}
+
+function draw() {
+  formEl.innerHTML = '';
+  render(content, '', formEl);
+  updateCount();
+}
+
+async function load() {
+  let data = null;
+
+  try {
+    const res = await fetch('/content.json', { cache: 'no-store' });
+    if (res.ok) data = await res.json();
+  } catch (e) {
+    // Открыли файл с диска — сервера нет, ниже возьмём встроенную копию.
+  }
+
+  if (!data) {
+    try {
+      data = JSON.parse(document.getElementById('initial-content').textContent);
+    } catch (e) {
+      data = null;
+    }
+  }
+
+  if (!data || !data.site) {
+    formEl.innerHTML =
+      '<p class="hint">Не удалось прочитать текст. Откройте редактор по адресу ' +
+      '<code>/tools/editor.html</code> на сайте или пересоберите проект: ' +
+      '<code>npm run build</code>.</p>';
+    return;
+  }
+
+  content = data;
+  original = JSON.parse(JSON.stringify(content));
+  draw();
+}
+
+document.getElementById('download').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(content, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'content.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Файл скачан');
+});
+
+document.getElementById('copy').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(JSON.stringify(content, null, 2));
+    toast('JSON скопирован');
+  } catch {
+    toast('Не вышло скопировать — скачайте файл');
+  }
+});
+
+document.getElementById('reload').addEventListener('click', () => {
+  if (changedCount() > 0 && !confirm('Сбросить все правки?')) return;
+  load();
+});
+
+document.getElementById('search').addEventListener('input', (e) => {
+  const q = e.target.value.trim().toLowerCase();
+  document.querySelectorAll('.field').forEach((el) => {
+    const hay = el.dataset.search || '';
+    el.style.display = !q || hay.includes(q) ? '' : 'none';
+  });
+});
+
+load();
+</script>
+</body>
+</html>

@@ -1,0 +1,35 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, aboutPage } from '../data/site';
+---
+
+<Base title={`${aboutPage.title} — ${site.name}`} description={aboutPage.paragraphs[0]}>
+  <section class="container page">
+    <div class="eyebrow">{aboutPage.eyebrow}</div>
+    <h1 class="page__title">{aboutPage.title}</h1>
+
+    <div class="about-grid">
+      <figure class="about-photo">
+        <img src="/img/about.jpg" alt="" width="1200" height="900" loading="lazy" decoding="async" />
+      </figure>
+
+      <div class="prose">
+        {aboutPage.paragraphs.map((text) => <p>{text}</p>)}
+        <p class="service__meta">{aboutPage.tools}</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="container section" id="site">
+    <div class="section__head">
+      <span class="section__idx">{aboutPage.siteBlock.idx}</span>
+      <h2 class="section__label">{aboutPage.siteBlock.label}</h2>
+    </div>
+
+    <div class="prose" style="margin-top: var(--space-6)">
+      {aboutPage.siteBlock.paragraphs.map((text) => <p>{text}</p>)}
+      <p>{aboutPage.siteBlock.formNote}</p>
+      <p>{aboutPage.siteBlock.hostingNote}</p>
+    </div>
+  </section>
+</Base>

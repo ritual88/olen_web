@@ -1,0 +1,22 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, notFound } from '../data/site';
+---
+
+<Base title={`${notFound.title} — ${site.name}`} description={notFound.lead} noindex>
+  <section class="container page">
+    <div class="eyebrow">{notFound.eyebrow}</div>
+    <h1 class="page__title">{notFound.title}</h1>
+    <p class="page__lead">{notFound.lead}</p>
+    <div class="hero__actions" style="margin-top: var(--space-6)">
+      {
+        notFound.links.map((link, index) => (
+          <a class:list={['btn', index === 0 && 'btn--primary']} href={link.href}>
+            {link.label}
+          </a>
+        ))
+      }
+      <a class="btn" href={site.telegram} target="_blank" rel="noopener noreferrer">Telegram</a>
+    </div>
+  </section>
+</Base>
