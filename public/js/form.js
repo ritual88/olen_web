@@ -92,6 +92,9 @@
         if (result.ok && result.json && result.json.ok) {
           form.reset();
           show(form.dataset.msgSuccess || 'Готово', 'ok');
+          if (typeof window.ym === 'function') {
+            window.ym(114347402, 'reachGoal', 'form_submit');
+          }
           return;
         }
         if (result.json && result.json.errors) {
