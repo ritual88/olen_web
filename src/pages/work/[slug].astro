@@ -43,7 +43,7 @@ const { item } = Astro.props;
       ))
     }
 
-    <p class="note">{item.note}</p>
+    {item.note && <p class="note">{item.note}</p>}
 
     <div class="hero__actions">
       <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">
