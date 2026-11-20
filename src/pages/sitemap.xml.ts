@@ -2,7 +2,16 @@ import type { APIRoute } from 'astro';
 
 // Страницы, которые попадают в карту сайта.
 // Политика и 404 исключены: они закрыты от индексации.
-const PAGES = ['/', '/services', '/about', '/contact'];
+import { cases } from '../data/site';
+
+const PAGES = [
+  '/',
+  '/services',
+  '/about',
+  '/contact',
+  '/work',
+  ...cases.map((item) => `/work/${item.slug}`)
+];
 
 export const GET: APIRoute = ({ site }) => {
   const base = site ?? new URL('https://example.com');

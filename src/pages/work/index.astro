@@ -1,0 +1,39 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site, workPage, cases } from '../../data/site';
+---
+
+<Base title={`${workPage.title} — ${site.name}`} description={workPage.lead}>
+  <section class="container page">
+    <div class="eyebrow">{workPage.eyebrow}</div>
+    <h1 class="page__title">{workPage.title}</h1>
+    <p class="page__lead">{workPage.lead}</p>
+
+    <div class="works-grid">
+      {
+        cases.map((item) => (
+          <a class="work-card" href={`/work/${item.slug}`}>
+            <div class="work-card__media">
+              <img
+                src={item.cover}
+                alt={item.title}
+                width="1440"
+                height="1000"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div>
+              <h2 class="work-card__title">{item.title}</h2>
+              <p class="work-card__meta">
+                {item.subtitle} · {item.year}
+              </p>
+              <p class="card__text">{item.summary}</p>
+              <span class="card__link">Смотреть кейс</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+</Base>

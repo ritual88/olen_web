@@ -1,0 +1,55 @@
+---
+import Base from '../../layouts/Base.astro';
+import { site, cases } from '../../data/site';
+
+export function getStaticPaths() {
+  return cases.map((item) => ({ params: { slug: item.slug }, props: { item } }));
+}
+
+const { item } = Astro.props;
+---
+
+<Base title={`${item.title} — ${site.name}`} description={item.summary}>
+  <section class="container page">
+    <div class="eyebrow"><a href="/work">Работы</a> · {item.subtitle}</div>
+    <h1 class="page__title">{item.title}</h1>
+    <p class="page__lead">{item.summary}</p>
+
+    <dl class="case-meta">
+      <div>
+        <dt>Год</dt>
+        <dd>{item.year}</dd>
+      </div>
+      <div>
+        <dt>Что делала</dt>
+        <dd>{item.role}</dd>
+      </div>
+      <div>
+        <dt>Тип</dt>
+        <dd>{item.subtitle}</dd>
+      </div>
+    </dl>
+
+    <ul class="case-tasks">
+      {item.tasks.map((task) => <li>{task}</li>)}
+    </ul>
+
+    {
+      item.gallery.map((shot) => (
+        <figure class="case-figure">
+          <img src={shot.src} alt={shot.caption} width="1440" height="1000" loading="lazy" decoding="async" />
+          <figcaption>{shot.caption}</figcaption>
+        </figure>
+      ))
+    }
+
+    <p class="note">{item.note}</p>
+
+    <div class="hero__actions">
+      <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">
+        Обсудить проект
+      </a>
+      <a class="btn" href="/work">Все работы</a>
+    </div>
+  </section>
+</Base>

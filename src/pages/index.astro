@@ -1,6 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
-import { site, home, services, steps, faq } from '../data/site';
+import { site, home, services, steps, faq, cases } from '../data/site';
 
 const title = `${site.name} — сайты: дизайн и разработка`;
 const description = home.hero.lead;
@@ -45,6 +45,42 @@ const description = home.hero.lead;
         ))
       }
     </div>
+  </section>
+
+  <section class="container section reveal" id="works">
+    <div class="section__head">
+      <span class="section__idx">{home.works.idx}</span>
+      <h2 class="section__label">{home.works.label}</h2>
+    </div>
+
+    <div class="works-grid">
+      {
+        cases.map((item) => (
+          <a class="work-card" href={`/work/${item.slug}`}>
+            <div class="work-card__media">
+              <img
+                src={item.cover}
+                alt={item.title}
+                width="1440"
+                height="1000"
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+            <div>
+              <h3 class="work-card__title">{item.title}</h3>
+              <p class="work-card__meta">
+                {item.subtitle} · {item.year}
+              </p>
+              <p class="card__text">{item.summary}</p>
+              <span class="card__link">{home.works.more}</span>
+            </div>
+          </a>
+        ))
+      }
+    </div>
+
+    <p class="note">{home.works.note}</p>
   </section>
 
   <section class="container section reveal" id="process">
