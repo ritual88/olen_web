@@ -12,9 +12,16 @@
     "build": "astro build",
     "preview": "astro preview",
     "start": "node server.mjs",
-    "editor": "node scripts/embed-content.mjs && start \"\" public/tools/editor.html"
+    "editor": "node scripts/embed-content.mjs && start \"\" public/tools/editor.html",
+    "test": "node --test",
+    "check": "astro check && node --test",
+    "verify": "npm run build && node scripts/audit.mjs"
   },
   "dependencies": {
     "astro": "^7.4.12"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.4",
+    "typescript": "^5.9.3"
   }
 }
