@@ -14,7 +14,7 @@ import { site, servicesPage, services } from '../data/site';
         <div class="service" id={service.id}>
           <div>
             <h2 class="service__title">{service.title}</h2>
-            <p class="service__text">{service.short}</p>
+            {service.short && <p class="service__text">{service.short}</p>}
             <p class="service__meta">Что нужно от вас: {service.need}</p>
             <div class="hero__actions">
               <a class="btn btn--primary" href={site.telegram} target="_blank" rel="noopener noreferrer">

@@ -37,7 +37,7 @@ const description = home.hero.lead;
           <article class="card">
             <div class="card__num">{service.num}</div>
             <h3 class="card__title">{service.title}</h3>
-            <p class="card__text">{service.short}</p>
+            {service.short && <p class="card__text">{service.short}</p>}
             <a class="card__link" href={`/services#${service.id}`}>
               {home.services.more}
             </a>
